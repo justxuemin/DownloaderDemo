@@ -51,6 +51,11 @@ public class RepoManager {
         }
     }
 
+    public boolean isDownload(String url) {
+        Data data = mDBRepo.query(url);
+        return checkFileIsValid(data);
+    }
+
     private void deleteFile(String localUrl) {
         if (TextUtils.isEmpty(localUrl)) {
             return;

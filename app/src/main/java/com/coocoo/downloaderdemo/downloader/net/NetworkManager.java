@@ -53,6 +53,7 @@ public class NetworkManager implements INetworkManager {
     }
 
     public IDownloadTask enqueue(boolean isResume, final Data data, final IDownloadCallback callback) {
+        mUIHandler.sendBeforeMsg(callback);
         Request.Builder builder = new Request.Builder();
         String url = data.getDownloadUrl();
         long offset = data.getOffset();

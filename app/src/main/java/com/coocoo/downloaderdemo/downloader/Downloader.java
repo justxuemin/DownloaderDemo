@@ -15,9 +15,10 @@ import com.coocoo.downloaderdemo.downloader.net.NetworkManager;
 public class Downloader implements IDownloader {
 
 
-    private final NetworkManager mNetWorkManager;
-    private final UIHandler mUIHandler;
-    private final RepoManager mRepoManager;
+    private NetworkManager mNetWorkManager;
+    private UIHandler mUIHandler;
+    private RepoManager mRepoManager;
+    private boolean mInit;
 
     /**
      * 下载器有几部分组成：
@@ -25,18 +26,42 @@ public class Downloader implements IDownloader {
      *  2 网络部分：提供联网，下载功能
      *  3 Downloader, 事件转发
      */
+    private static final class InstanceHolder {
+        private static final Downloader INSTANCE = new Downloader();
+    }
 
-    public Downloader(Context context, DownloadConfig config) {
+    private Downloader() {
+        mInit = false;
+    }
+
+    public static Downloader getInstance() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    public void init(Context context, DownloadConfig config) {
         mUIHandler = new UIHandler();
         mRepoManager = new RepoManager(context, config.mDownloadRootPath);
         mNetWorkManager = new NetworkManager(mUIHandler, mRepoManager);
+        mInit = true;
     }
 
     @Override
     public IDownloadTask download(String url, IDownloadCallback callback) {
+        checkInit();
         Log.e("xuemin", "download-url : " + url);
         Data data = mRepoManager.getData(url);
         return mNetWorkManager.enqueue(false, data, callback);
+    }
+
+    @Override
+    public boolean isDownloaded(String url) {
+        return mRepoManager.isDownload(url);
+    }
+
+    private void checkInit() {
+        if (!mInit) {
+            throw new RuntimeException("You Need Init Downloader Firstly!!!");
+        }
     }
 
     public class UIHandler extends Handler {
@@ -159,6 +184,44 @@ public class Downloader implements IDownloader {
             msg.what = MESSAGE_RESUME;
             msg.obj = new MessageData(callback);
             sendMessage(msg);
+        }
+    }
+
+    public static class DefaultDownloadCallback implements IDownloadCallback {
+
+        @Override
+        public void onBefore() {
+
+        }
+
+        @Override
+        public void onProcess(int process) {
+
+        }
+
+        @Override
+        public void onComplete(Data data) {
+
+        }
+
+        @Override
+        public void onFailed(String error) {
+
+        }
+
+        @Override
+        public void onCanceled() {
+
+        }
+
+        @Override
+        public void onPause() {
+
+        }
+
+        @Override
+        public void onResume() {
+
         }
     }
 

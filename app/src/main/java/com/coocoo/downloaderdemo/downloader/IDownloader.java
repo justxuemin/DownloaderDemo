@@ -10,4 +10,6 @@ public interface IDownloader {
      * @return 下载任务对象
      */
     IDownloadTask download(String url, IDownloadCallback callback);
+
+    boolean isDownloaded(String url);
 }
